@@ -20,12 +20,27 @@ for i=1:individuals
     end
 end
 
+% controlling joint angles
+for i=1:individuals
+    for j=1:joints
+        ret = sim.simxSetJointTargetPosition(clientID, jointHandles(i,j), deg2rad(0), sim.simx_opmode_blocking);
+    end
+end
+% ret = sim.simxSetJointTargetPosition(clientID, jointHandles(1,5), deg2rad(0), sim.simx_opmode_blocking);
+% if (ret == sim.simx_return_ok)
+%     fprintf("joint angle set successfully");
+% end
+
+
+
 function [sim, clientID] = startSim()
     sim=remApi('remoteApi'); % using the prototype file (remoteApiProto.m)
     sim.simxFinish(-1); % just in case, close all opened connections
     clientID=sim.simxStart('127.0.0.1',19997,true,true,5000,5);
     if (clientID>-1)
         disp('Connected to remote API server');
+        % Now send some data to CoppeliaSim in a non-blocking fashion:
+        sim.simxAddStatusbarMessage(clientID,'Hello CoppeliaSim!',sim.simx_opmode_oneshot);
     else
         disp('Failed connecting to remote API server');
         stopSim(sim, clientID)
