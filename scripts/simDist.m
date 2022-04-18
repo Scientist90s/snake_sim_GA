@@ -1,21 +1,21 @@
-function [dist] = simDist(njoints, nindividuals, setAngles, simTime)
-    % Starting simulation bridge
+function [dist] = simDist(setAngles, simTime)
+    %%% Starting simulation bridge
     [sim, clientID] = startSim();
     
-%     % defining joint and individuals
-%     njoints = 10;
-%     nindividuals = 10;
+    %%% defining joint and individuals
+    njoints = size(setAngles,2);
+    nindividuals = size(setAngles,3);
 %     simTime = 15;
     
-    % joint and goal handles initializations
+    %%% joint and goal handles initializations
     jointHandles = zeros(nindividuals, njoints);
     goalHandles = zeros(nindividuals,1);
     
-    % initializing poisitons vector
+    %%% initializing poisitons vector
     currPosition = zeros(nindividuals, 3);
     goalPosition = zeros(nindividuals, 3);
     
-    % acquiring handles
+    %%% acquiring handles
     % acquiring the joint handles of servo motors
     for i=1:nindividuals
         for j=1:njoints
@@ -24,14 +24,14 @@ function [dist] = simDist(njoints, nindividuals, setAngles, simTime)
         end
     end
 
-    % acquiring the joint handles of goal positions
+    %%% acquiring the joint handles of goal positions
     for i=1:nindividuals
             jointName = sprintf('/Dummy[%d]', i-1);
             [~, goalHandles(i)] = sim.simxGetObjectHandle(clientID,jointName,sim.simx_opmode_oneshot_wait);
     end
     
     
-    % controlling joint angles
+    %%% controlling joint angles
     t=clock;
     startTime=t(6);
     currentTime=t(6);
@@ -50,7 +50,7 @@ function [dist] = simDist(njoints, nindividuals, setAngles, simTime)
 %         fprintf("joint angle set successfully");
 %     end
     
-    % getting positions
+    %%% getting and setting positions
     % getting current positions    
     for i=1:nindividuals
         [~, currPosition(i,:)] = sim.simxGetObjectPosition(clientID, jointHandles(i,1), -1, sim.simx_opmode_oneshot_wait);
@@ -61,7 +61,7 @@ function [dist] = simDist(njoints, nindividuals, setAngles, simTime)
         [~, goalPosition(i,:)] = sim.simxGetObjectPosition(clientID, goalHandles(i), -1, sim.simx_opmode_oneshot_wait);
     end
 
-    % getting distances
+    %%% getting distances
     for i=1:nindividuals
         dist(i) = currPosition(i,2) - goalPosition(i,2);
     end
