@@ -1,11 +1,11 @@
-function [dist] = simDist(setAngles, simTime)
+function [dist] = simDist(setAngles)
     %%% Starting simulation bridge
     [sim, clientID] = startSim();
     
     %%% defining joint and individuals
     njoints = size(setAngles,2);
     nindividuals = size(setAngles,3);
-%     simTime = 15;
+    timestamp = size(setAngles,1);
     
     %%% joint and goal handles initializations
     jointHandles = zeros(nindividuals, njoints);
@@ -32,18 +32,12 @@ function [dist] = simDist(setAngles, simTime)
     
     
     %%% controlling joint angles
-    t=clock;
-    startTime=t(6);
-    currentTime=t(6);
-    while (currentTime-startTime < simTime)
+    for k=1:timestamp
         for i=1:individuals
             for j=1:joints
-                retsetjoint = sim.simxSetJointTargetPosition(clientID, jointHandles(i,j), setAngles(i,j), sim.simx_opmode_blocking);
-                fprintf("joint angle set successfully");
+                retsetjoint = sim.simxSetJointTargetPosition(clientID, jointHandles(i,j), setAngles(k,i,j), sim.simx_opmode_blocking);
             end
         end
-        t=clock;
-        currentTime=t(6);
     end
 %     retsetjoint = sim.simxSetJointTargetPosition(clientID, jointHandles(1,5), deg2rad(45), sim.simx_opmode_blocking);
 %     if (retsetjoint == sim.simx_return_ok)
