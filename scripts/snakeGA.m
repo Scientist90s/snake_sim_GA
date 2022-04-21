@@ -8,7 +8,7 @@ M = 10;
 % number of genes considering 1 gene per motor (= number of joints)
 N = 10;
 % Number of parents to be selected                                                                                                                                      
-R = 40;
+R = 5;
 % Number of generations
 max_gen = 20; gen = 1;
 % Crossover Probability
@@ -18,10 +18,9 @@ Pm = 0.5;
 
 %%% Snake parameters
 % simulation time per generation
-simTime = 15;
 amplitude = 1;
 frequency = 0.2;
-timestamp = 360;
+timestamp = 180;
 
 %%% Generating random genes for initial population
 minphiDeg = -90;
@@ -40,13 +39,17 @@ while gen<max_gen
     angles = generateAngles(M, N, amplitude, frequency, pop, timestamp);
 
     % Fitness by fetching distance from simulation
+    fprintf("Getting fitness for generation %d \n", gen)
+    tic;
     F = simDist(angles);
+    t = toc;
+    fprintf("Time taken for generation %d is %d \n", gen, t/60)
 
     % data for plots
-    [best(gen), idx_best] = min(F);
-    worst(gen) = max(F);
+    [best(gen), idx_best] = max(F);
+    worst(gen) = min(F);
     avg(gen) = mean(F);
-    bestInd(gen) = pop(idx_best,:);
+%     bestInd(gen) = pop(idx_best,:);
 
     % selection probability
     Ps = F./sum(F);
@@ -96,7 +99,7 @@ while gen<max_gen
     pop_child = [pop_child; ophi];
 
     % Population update
-    pop = [pop_child; pop(Rparents)];
+    pop = [pop_child; pop(Rparents,:)];
 
     % generation increment
     gen = gen + 1;

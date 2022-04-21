@@ -30,12 +30,14 @@ function [dist] = simDist(setAngles)
             [~, goalHandles(i)] = sim.simxGetObjectHandle(clientID,jointName,sim.simx_opmode_oneshot_wait);
     end
     
-    
+    %%% Starting simulation
+    sim.simxStartSimulation(clientID, sim.simx_opmode_oneshot_wait);
+
     %%% controlling joint angles
     for k=1:timestamp
-        for i=1:individuals
-            for j=1:joints
-                retsetjoint = sim.simxSetJointTargetPosition(clientID, jointHandles(i,j), setAngles(k,i,j), sim.simx_opmode_blocking);
+        for i=1:nindividuals
+            for j=1:njoints
+                retsetjoint = sim.simxSetJointTargetPosition(clientID, jointHandles(i,j), setAngles(k,j,i), sim.simx_opmode_blocking);
             end
         end
     end
@@ -59,6 +61,8 @@ function [dist] = simDist(setAngles)
     for i=1:nindividuals
         dist(i) = currPosition(i,2) - goalPosition(i,2);
     end
+
+    stopSim(sim, clientID)
 end
 
 
@@ -78,7 +82,8 @@ end
 
 function stopSim(sim, clientID)
     sim.simxPauseSimulation(clientID,sim.simx_opmode_oneshot_wait); % pause simulation
-    %sim.simxStopSimulation(clientID,sim.simx_opmode_oneshot_wait); % stop simulation
+    sim.simxAddStatusbarMessage(clientID,'sending fitness',sim.simx_opmode_oneshot);
+    sim.simxStopSimulation(clientID,sim.simx_opmode_oneshot_wait); % stop simulation
     sim.simxFinish(clientID);  % close the line if still open
     sim.delete();              % call the destructor!
     disp('simulation ended');
